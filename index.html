@@ -71,37 +71,41 @@
   </div>
 
   <script>
-    async function validarClave() {
-      const clave = document.getElementById("claveInput").value.trim();
-      const mensajeError = document.getElementById("mensajeError");
+    function validarClave() {
+      const clave = document.getElementById("claveInput").value;
+      const errorMsg = document.getElementById("mensajeError");
+      const successMsg = document.getElementById("mensajeSuccess");
 
-      if (!clave) {
-        mensajeError.textContent = "Por favor ingresa tu clave.";
-        mensajeError.style.display = "block";
-        return;
-      }
+      errorMsg.style.display = "none";
+      successMsg.style.display = "block";
+      successMsg.innerText = "Validando clave...";
 
-      try {
-        const response = await fetch(
-          `https://prod-44.westus.logic.azure.com:443/workflows/62ed734c5da6469e9ce7953d8e7ba0a8/triggers/manual/paths/invoke?clave=${clave}&api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=5UDZOlbU1wAkX_46IefgxSUXlXOdEnfwghYJ1UITqUw`,
-          {
-            method: "GET"
-          }
-        );
-
-        const result = await response.json();
-
-        if (result.Estatus === "Activo") {
-          window.location.href = "https://forms.office.com/tu-formulario";
+      fetch("https://prod-44.westus.logic.azure.com:443/workflows/62ed734c5da6469e9ce7953d8e7ba0a8/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=5UDZOlbU1wAkX_46IefgxSUXlXOdEnfwghYJ1UITqUw", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ clave: clave })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.resultado === "valido") {
+          successMsg.innerText = data.mensaje || "Acceso concedido. Redirigiendo...";
+          setTimeout(() => {
+            window.location.href = "https://forms.office.com/r/5SK4TVNmTu";
+          }, 1500);
         } else {
-          mensajeError.textContent = "Usuario no activo o clave incorrecta.";
-          mensajeError.style.display = "block";
+          successMsg.style.display = "none";
+          errorMsg.innerText = data.mensaje || "Clave incorrecta o no activa.";
+          errorMsg.style.display = "block";
         }
-      } catch (error) {
-        console.error("Error al validar:", error);
-        mensajeError.textContent = "Error de conexión o clave inválida.";
-        mensajeError.style.display = "block";
-      }
+      })
+      .catch(err => {
+        successMsg.style.display = "none";
+        errorMsg.innerText = "Error en la conexión. Intenta más tarde.";
+        errorMsg.style.display = "block";
+        console.error("Error en fetch:", err);
+      });
     }
   </script>
 </body>
