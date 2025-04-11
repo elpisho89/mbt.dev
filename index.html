@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Reclutamiento Mainbit</title>
+  <title>Validación de Acceso</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -31,43 +31,42 @@
     }
     input[type="password"] {
       padding: 12px;
-      width: 100%;
-      margin-top: 15px;
+      width: 220px;
       border-radius: 6px;
       border: 1px solid #ccc;
-      font-size: 16px;
+      margin-bottom: 10px;
     }
     button {
-      margin-top: 20px;
-      padding: 12px 20px;
-      width: 100%;
+      padding: 10px 20px;
       border: none;
       border-radius: 6px;
-      background-color: #0078d4;
+      background: #0078d4;
       color: white;
       font-weight: bold;
-      font-size: 16px;
       cursor: pointer;
-      transition: background-color 0.2s ease-in-out;
-    }
-    button:hover {
-      background-color: #005ea2;
     }
     .error {
       color: red;
-      margin-top: 15px;
+      margin-top: 10px;
+      display: none;
+    }
+    .success {
+      color: green;
+      margin-top: 10px;
       display: none;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <img src="Logo MBT Plus.png" class="logo" alt="Logo MBT" />
-    <h2>Acceso a Participantes</h2>
-    <p>Ingresa tu clave:</p>
+    <img src="Logo MBT Plus.png" alt="Mainbit Logo" class="logo">
+    <h2>Bienvenido</h2>
+    <p>Ingresa tu clave de acceso:</p>
     <input type="password" id="claveInput" placeholder="Clave de acceso" />
-    <button onclick="validarClave()">Verificar Acceso</button>
-    <p id="mensajeError" class="error">Clave inválida o usuario inactivo.</p>
+    <br />
+    <button onclick="validarClave()">Validar clave</button>
+    <p id="mensajeError" class="error">Error en la validación.</p>
+    <p id="mensajeSuccess" class="success">Validando clave...</p>
   </div>
 
   <script>
