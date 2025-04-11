@@ -2,100 +2,89 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Validación de Acceso</title>
+  <title>Seguimiento Automático</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f0f2f5;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
     }
+
     .container {
       background: white;
-      padding: 30px;
+      padding: 2rem 3rem;
       border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
       text-align: center;
+      max-width: 400px;
     }
-    input[type="password"] {
-      padding: 10px;
-      width: 220px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      margin-bottom: 10px;
+
+    .logo {
+      max-width: 120px;
+      margin-bottom: 1rem;
+      opacity: 0.85;
     }
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      background: #0078d4;
-      color: white;
+
+    h1 {
+      color: #1d3557;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      color: #555;
+      margin-bottom: 2rem;
+      font-size: 1rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
       font-weight: bold;
+      color: white;
+      background-color: #0078d4;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
     }
-    .error {
-      color: red;
-      margin-top: 10px;
-      display: none;
+
+    .btn:hover {
+      background-color: #005fa3;
+      transform: scale(1.05);
     }
-    .success {
-      color: green;
-      margin-top: 10px;
-      display: none;
+
+    .btn.clicked {
+      background-color: #28a745;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Bienvenido</h2>
-    <p>Ingresa tu clave de acceso:</p>
-    <input type="password" id="claveInput" placeholder="Clave de acceso" />
-    <br />
-    <button onclick="validarClave()">Validar clave</button>
-    <p id="mensajeError" class="error">Error en la validación.</p>
-    <p id="mensajeSuccess" class="success">Validando clave...</p>
+    <img src="Logo MBT Plus.png" alt="Mainbit Logo" class="logo">
+    <h1>Seguimiento de Solicitudes</h1>
+    <p>Da clic para ejecutar el flujo automático en ServiceNow.</p>
+    <button class="btn" id="followBtn">Iniciar Seguimiento</button>
   </div>
 
   <script>
-    function validarClave() {
-      const clave = document.getElementById("claveInput").value;
-      const errorMsg = document.getElementById("mensajeError");
-      const successMsg = document.getElementById("mensajeSuccess");
+    const button = document.getElementById('followBtn');
+    const url = "https://prod-44.westus.logic.azure.com:443/workflows/62ed734c5da6469e9ce7953d8e7ba0a8/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=5UDZOlbU1wAkX_46IefgxSUXlXOdEnfwghYJ1UITqUw";
 
-      errorMsg.style.display = "none";
-      successMsg.style.display = "block";
-      successMsg.innerText = "Validando clave...";
-
-      fetch("https://prod-44.westus.logic.azure.com:443/workflows/62ed734c5da6469e9ce7953d8e7ba0a8/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=5UDZOlbU1wAkX_46IefgxSUXlXOdEnfwghYJ1UITqUw", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ clave: clave })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.resultado === "valido") {
-          successMsg.innerText = data.mensaje || "Acceso concedido. Redirigiendo...";
-          setTimeout(() => {
-            window.location.href = "https://forms.office.com/r/5SK4TVNmTu";
-          }, 1500);
-        } else {
-          successMsg.style.display = "none";
-          errorMsg.innerText = data.mensaje || "Clave incorrecta o no activa.";
-          errorMsg.style.display = "block";
-        }
-      })
-      .catch(err => {
-        successMsg.style.display = "none";
-        errorMsg.innerText = "Error en la conexión. Intenta más tarde.";
-        errorMsg.style.display = "block";
-        console.error("Error en fetch:", err);
-      });
-    }
+    button.addEventListener('click', () => {
+      if (confirm("¿Estás seguro de que deseas iniciar el seguimiento?")) {
+        button.textContent = "Seguimiento iniciado";
+        button.classList.add('clicked');
+        window.open(url, "_blank");
+      }
+    });
   </script>
 </body>
 </html>
