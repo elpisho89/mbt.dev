@@ -2,100 +2,106 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Validación de Acceso</title>
+  <title>Validación de Candidato</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f0f2f5;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f8;
       display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       height: 100vh;
+      margin: 0;
     }
     .container {
       background: white;
-      padding: 30px;
+      padding: 30px 40px;
       border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
       text-align: center;
+      width: 350px;
+      position: relative;
+    }
+    .container img.logo {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 60px;
+      opacity: 0.2;
     }
     input[type="password"] {
-      padding: 10px;
-      width: 220px;
+      padding: 12px;
+      width: 100%;
+      margin-top: 15px;
       border-radius: 6px;
       border: 1px solid #ccc;
-      margin-bottom: 10px;
+      font-size: 16px;
     }
     button {
-      padding: 10px 20px;
+      margin-top: 20px;
+      padding: 12px 20px;
+      width: 100%;
       border: none;
       border-radius: 6px;
-      background: #0078d4;
+      background-color: #0078d4;
       color: white;
       font-weight: bold;
+      font-size: 16px;
       cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+    }
+    button:hover {
+      background-color: #005ea2;
     }
     .error {
       color: red;
-      margin-top: 10px;
-      display: none;
-    }
-    .success {
-      color: green;
-      margin-top: 10px;
+      margin-top: 15px;
       display: none;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <img src="Logo MBT Plus.png" alt="Mainbit Logo" class="logo">
-    <h2>Bienvenido</h2>
-    <p>Ingresa tu clave de acceso:</p>
+    <img src="Logo MBT Plus.png" class="logo" alt="Logo MBT" />
+    <h2>Acceso de Candidato</h2>
+    <p>Ingresa tu clave única (GUID):</p>
     <input type="password" id="claveInput" placeholder="Clave de acceso" />
-    <br />
-    <button onclick="validarClave()">Validar clave</button>
-    <p id="mensajeError" class="error">Error en la validación.</p>
-    <p id="mensajeSuccess" class="success">Validando clave...</p>
+    <button onclick="validarClave()">Validar</button>
+    <p id="mensajeError" class="error">Clave inválida o usuario inactivo.</p>
   </div>
 
   <script>
-    function validarClave() {
-      const clave = document.getElementById("claveInput").value;
-      const errorMsg = document.getElementById("mensajeError");
-      const successMsg = document.getElementById("mensajeSuccess");
+    async function validarClave() {
+      const clave = document.getElementById("claveInput").value.trim();
+      const mensajeError = document.getElementById("mensajeError");
 
-      errorMsg.style.display = "none";
-      successMsg.style.display = "block";
-      successMsg.innerText = "Validando clave...";
+      if (!clave) {
+        mensajeError.textContent = "Por favor ingresa tu clave.";
+        mensajeError.style.display = "block";
+        return;
+      }
 
-      fetch("https://prod-44.westus.logic.azure.com:443/workflows/62ed734c5da6469e9ce7953d8e7ba0a8/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=5UDZOlbU1wAkX_46IefgxSUXlXOdEnfwghYJ1UITqUw", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ clave: clave })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.resultado === "valido") {
-          successMsg.innerText = data.mensaje || "Acceso concedido. Redirigiendo...";
-          setTimeout(() => {
-            window.location.href = "https://forms.office.com/r/5SK4TVNmTu";
-          }, 1500);
+      try {
+        const response = await fetch(
+          `https://prod-44.westus.logic.azure.com:443/workflows/62ed734c5da6469e9ce7953d8e7ba0a8/triggers/manual/paths/invoke?clave=${clave}&api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=5UDZOlbU1wAkX_46IefgxSUXlXOdEnfwghYJ1UITqUw`,
+          {
+            method: "GET"
+          }
+        );
+
+        const result = await response.json();
+
+        if (result.Estatus === "Activo") {
+          window.location.href = "https://forms.office.com/tu-formulario";
         } else {
-          successMsg.style.display = "none";
-          errorMsg.innerText = data.mensaje || "Clave incorrecta o no activa.";
-          errorMsg.style.display = "block";
+          mensajeError.textContent = "Usuario no activo o clave incorrecta.";
+          mensajeError.style.display = "block";
         }
-      })
-      .catch(err => {
-        successMsg.style.display = "none";
-        errorMsg.innerText = "Error en la conexión. Intenta más tarde.";
-        errorMsg.style.display = "block";
-        console.error("Error en fetch:", err);
-      });
+      } catch (error) {
+        console.error("Error al validar:", error);
+        mensajeError.textContent = "Error de conexión o clave inválida.";
+        mensajeError.style.display = "block";
+      }
     }
   </script>
 </body>
