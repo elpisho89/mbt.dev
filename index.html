@@ -55,6 +55,13 @@
       margin-top: 10px;
       display: none;
     }
+    iframe {
+      margin-top: 20px;
+      border: none;
+      border-radius: 6px;
+      width: 100%;
+      height: 500px;
+    }
   </style>
 </head>
 <body>
@@ -64,21 +71,26 @@
     <p>Ingresa tu clave de acceso:</p>
     <input type="password" id="claveInput" placeholder="Clave de acceso" />
     <br />
-    <button onclick="validarClave()">Validar clave</button>
+    <button onclick="mostrarFormulario()">Validar clave</button>
     <p id="mensajeError" class="error">Error en la validación.</p>
     <p id="mensajeSuccess" class="success">Validando clave...</p>
+    
+    <!-- Iframe oculto inicialmente -->
+    <iframe id="formularioIframe" src="https://forms.office.com/r/5SK4TVNmTu" style="display: none;"></iframe>
   </div>
 
   <script>
-    function validarClave() {
+    function mostrarFormulario() {
       const clave = document.getElementById("claveInput").value;
       const errorMsg = document.getElementById("mensajeError");
       const successMsg = document.getElementById("mensajeSuccess");
+      const iframe = document.getElementById("formularioIframe");
 
       errorMsg.style.display = "none";
       successMsg.style.display = "block";
       successMsg.innerText = "Validando clave...";
 
+      // Simular validación de clave
       fetch("https://prod-44.westus.logic.azure.com:443/workflows/62ed734c5da6469e9ce7953d8e7ba0a8/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=5UDZOlbU1wAkX_46IefgxSUXlXOdEnfwghYJ1UITqUw", {
         method: "POST",
         headers: {
@@ -89,10 +101,8 @@
       .then(res => res.json())
       .then(data => {
         if (data.resultado === "valido") {
-          successMsg.innerText = data.mensaje || "Acceso concedido. Redirigiendo...";
-          setTimeout(() => {
-            window.location.href = "https://forms.office.com/r/5SK4TVNmTu";
-          }, 1500);
+          successMsg.innerText = data.mensaje || "Acceso concedido. Mostrando formulario...";
+          iframe.style.display = "block"; // Mostrar el iframe con el formulario
         } else {
           successMsg.style.display = "none";
           errorMsg.innerText = data.mensaje || "Clave incorrecta o no activa.";
